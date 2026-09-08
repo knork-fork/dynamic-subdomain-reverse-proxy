@@ -32,8 +32,9 @@ It's available at port 20501 by default.
 
 Start it up with:
 
-```
+```bash
 cd domain-admin \
+    && printf 'APP_ENV=prod\nAPP_DEBUG=0\nAPP_SECRET=%s\n' "$(openssl rand -hex 32)" > .env.local \
     && docker compose up -d --build \
     && docker/composer install
 ```
