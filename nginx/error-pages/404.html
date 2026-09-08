@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>404 - No backend configured</title>
+<style>
+    :root { color-scheme: light dark; }
+    html, body {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #0f1115;
+        color: #e6e6e6;
+    }
+    .card {
+        text-align: center;
+        padding: 2.5rem 3rem;
+    }
+    .code {
+        font-size: 4rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        margin: 0 0 0.5rem;
+        color: #f97066;
+    }
+    .message {
+        font-size: 1.1rem;
+        margin: 0 0 0.25rem;
+        color: #a9adb8;
+    }
+    .host {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #e6e6e6;
+        word-break: break-all;
+    }
+</style>
+</head>
+<body>
+    <div class="card">
+        <p class="code">404</p>
+        <p class="message">No backend is configured for</p>
+        <p class="host"><!--# echo var="host" --></p>
+    </div>
+</body>
+</html>

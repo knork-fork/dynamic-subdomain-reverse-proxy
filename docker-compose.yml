@@ -1,0 +1,19 @@
+services:
+  web:
+    image: nginx:alpine
+    network_mode: host
+    env_file:
+      - ./config/proxy.env
+    volumes:
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./nginx/error-pages:/usr/share/nginx/error-pages:ro
+    depends_on:
+      - resolver
+
+  resolver:
+    image: php:8.5-fpm-alpine
+    network_mode: host
+    volumes:
+      - ./php/resolve.php:/var/www/html/resolve.php:ro
+      - ./php/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
+      - ./config:/etc/proxy-router:ro
