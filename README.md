@@ -39,4 +39,14 @@ cd domain-admin \
     && docker/composer install
 ```
 
-Then visit `http://localhost:20501` to view and edit the mapping. Changes made here are written to `config/domains.json` and take effect immediately.
+There's no signup form — create (or update) the login it should accept by running:
+
+```bash
+domain-admin/docker/console app:user:create
+```
+
+It'll ask for a username and password and store the username plus a bcrypt hash of the password in `domain-admin/var/security/users.json`. Run it again with the same username to change that user's password.
+
+Then visit `http://localhost:20501`, log in, and use the dashboard to view, add, edit, or remove entries. Changes made here are written to `config/domains.json` and take effect immediately. Login persists across browser restarts; use the Logout button to end the session explicitly.
+
+Protip: add `"<domain-admin url":<domain-admin port>` to your `config/domains.json` so you can manage the mappings from the same interface that serves them.

@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Domain Admin{% endblock %}
+
+{% block body %}
+<div class="page" data-csrf-token="{{ csrf_token('domains-api') }}">
+    <header class="topbar">
+        <div>
+            <h1>Domain Admin</h1>
+            <p class="subtitle">Manage subdomain → port mappings</p>
+        </div>
+        <div class="topbar-actions">
+            <span class="hi">Hi, {{ app.user.userIdentifier }}</span>
+            <form action="{{ path('app_logout') }}" method="get">
+                <button type="submit" class="btn btn-secondary">Logout</button>
+            </form>
+        </div>
+    </header>
+
+    <p id="flash" class="flash" hidden></p>
+
+    <form id="add-form" class="add-form">
+        <input type="text" id="add-domain" placeholder="subdomain.example.com" required>
+        <input type="number" id="add-port" placeholder="port" min="1" max="65535" required>
+        <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+
+    <table class="domains-table">
+        <thead>
+            <tr>
+                <th>Domain</th>
+                <th>Port</th>
+                <th>Status</th>
+                <th class="actions-col">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="domains-body">
+            <tr><td colspan="4" class="empty">Loading…</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="/js/app.js"></script>
+{% endblock %}

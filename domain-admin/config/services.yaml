@@ -1,9 +1,16 @@
 parameters:
+    app.domains_config_path: '%env(DOMAINS_CONFIG_PATH)%'
+    app.users_file_path: '%kernel.project_dir%/var/security/users.json'
+    app.host_gateway: '%env(HOST_GATEWAY)%'
 
 services:
     _defaults:
         autowire: true
         autoconfigure: true
+        bind:
+            string $domainsConfigPath: '%app.domains_config_path%'
+            string $usersFilePath: '%app.users_file_path%'
+            string $hostGateway: '%app.host_gateway%'
 
     App\:
         resource: '../src/'

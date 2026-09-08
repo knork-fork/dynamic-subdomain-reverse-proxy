@@ -5,7 +5,10 @@
         "symfony/framework-bundle": "^8.0",
         "symfony/yaml": "^8.0",
         "symfony/dotenv": "^8.0",
-        "symfony/runtime": "^8.0"
+        "symfony/runtime": "^8.0",
+        "symfony/security-bundle": "^8.0",
+        "symfony/twig-bundle": "^8.1",
+        "twig/twig": "^3.28"
     },
     "autoload": {
         "psr-4": {

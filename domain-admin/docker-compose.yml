@@ -22,3 +22,8 @@ services:
             - '.:/application'
             - './phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.5/fpm/conf.d/99-overrides.ini'
             - './phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.5/cli/conf.d/99-overrides.ini'
+            - '../config:/config'
+        # Lets the app reach the host's network namespace (via HOST_GATEWAY in .env)
+        # to check whether a port is actually in use on the host, not just in-container.
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'

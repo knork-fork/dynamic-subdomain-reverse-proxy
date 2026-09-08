@@ -1,0 +1,30 @@
+security:
+    password_hashers:
+        Symfony\Component\Security\Core\User\InMemoryUser: bcrypt
+
+    providers:
+        json_file_provider:
+            id: App\Security\JsonUserProvider
+
+    firewalls:
+        main:
+            lazy: true
+            provider: json_file_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                default_target_path: app_dashboard
+                enable_csrf: true
+            logout:
+                path: app_logout
+                target: app_login
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 31536000
+                always_remember_me: true
+                path: /
+
+    access_control:
+        - { path: ^/status, roles: PUBLIC_ACCESS }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/, roles: ROLE_ADMIN }

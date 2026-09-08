@@ -3,6 +3,11 @@ framework:
     http_method_override: false
     handle_all_throwables: true
 
+    session:
+        enabled: true
+        cookie_secure: auto
+        cookie_samesite: lax
+
     php_errors:
         log: true
 
