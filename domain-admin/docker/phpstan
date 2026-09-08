@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker exec -t domain-admin-php-fpm /application/vendor/phpstan/phpstan/phpstan "$@"

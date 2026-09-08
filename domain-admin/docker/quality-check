@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo "==> PHP CS Fixer (dry-run)"
+docker exec domain-admin-php-fpm /application/vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix --allow-risky=yes --dry-run --diff
+
+echo ""
+echo "==> PHPStan"
+docker exec domain-admin-php-fpm /application/vendor/phpstan/phpstan/phpstan analyse
+
+echo ""
+echo "==> PHPUnit"
+docker exec domain-admin-php-fpm bin/phpunit
+
+echo ""
+echo "All quality checks passed."

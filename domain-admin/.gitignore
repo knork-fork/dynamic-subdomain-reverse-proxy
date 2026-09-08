@@ -1,0 +1,24 @@
+# PHP
+/vendor/
+/var/
+.php-cs-fixer.cache
+.phpunit.result.cache
+
+# IDE
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env.local

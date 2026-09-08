@@ -1,0 +1,15 @@
+parameters:
+    level: 9
+    checkUninitializedProperties: true
+    checkBenevolentUnionTypes: true
+    paths:
+        - bin/
+        - public/
+        - src/
+        - tests/
+    ignoreErrors:
+        - identifier: staticMethod.alreadyNarrowedType
+          paths:
+              - tests/Unit/ExampleTest.php
+              - tests/Integration/ExampleTest.php
+              - tests/Functional/ExampleTest.php
