@@ -177,7 +177,11 @@
     }
 
     async function removeDomain(domain) {
-        if (!confirm(`Remove ${domain}?`)) {
+        const message = domain.toLowerCase() === window.location.hostname.toLowerCase()
+            ? `You are currently accessing this dashboard through "${domain}". Removing it may break access to domain-admin itself — if that happens, you'll need to fix config/domains.json by connecting to the server directly (SSH or similar), not through this UI. Remove it anyway?`
+            : `Remove ${domain}?`;
+
+        if (!confirm(message)) {
             return;
         }
 
