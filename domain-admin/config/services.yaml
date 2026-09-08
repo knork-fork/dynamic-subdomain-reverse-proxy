@@ -11,6 +11,7 @@ services:
             string $domainsConfigPath: '%app.domains_config_path%'
             string $usersFilePath: '%app.users_file_path%'
             string $hostGateway: '%app.host_gateway%'
+            string $publicDir: '%kernel.project_dir%/public'
 
     App\:
         resource: '../src/'
