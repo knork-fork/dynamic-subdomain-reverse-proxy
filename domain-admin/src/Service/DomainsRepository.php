@@ -15,7 +15,7 @@ final class DomainsRepository
     }
 
     /**
-     * @return array<string, int> domain => port, sorted by domain
+     * @return array<string, array{port: int, comment: string}> domain => {port, comment}, sorted by domain
      */
     public function all(): array
     {
@@ -25,22 +25,22 @@ final class DomainsRepository
         return $map;
     }
 
-    public function add(string $domain, int $port): void
+    public function add(string $domain, int $port, string $comment): void
     {
-        $this->write(static function (array $map) use ($domain, $port): array {
+        $this->write(static function (array $map) use ($domain, $port, $comment): array {
             if (\array_key_exists($domain, $map)) {
                 throw new InvalidArgumentException(\sprintf('Domain "%s" already exists.', $domain));
             }
 
-            $map[$domain] = $port;
+            $map[$domain] = ['port' => $port, 'comment' => $comment];
 
             return $map;
         });
     }
 
-    public function update(string $currentDomain, string $newDomain, int $port): void
+    public function update(string $currentDomain, string $newDomain, int $port, string $comment): void
     {
-        $this->write(static function (array $map) use ($currentDomain, $newDomain, $port): array {
+        $this->write(static function (array $map) use ($currentDomain, $newDomain, $port, $comment): array {
             if (!\array_key_exists($currentDomain, $map)) {
                 throw new InvalidArgumentException(\sprintf('Domain "%s" does not exist.', $currentDomain));
             }
@@ -50,7 +50,7 @@ final class DomainsRepository
             }
 
             unset($map[$currentDomain]);
-            $map[$newDomain] = $port;
+            $map[$newDomain] = ['port' => $port, 'comment' => $comment];
 
             return $map;
         });
@@ -70,7 +70,7 @@ final class DomainsRepository
     }
 
     /**
-     * @return array<string, int>
+     * @return array<string, array{port: int, comment: string}>
      */
     private function read(): array
     {
@@ -89,15 +89,15 @@ final class DomainsRepository
         }
 
         $result = [];
-        foreach ($map as $domain => $port) {
-            $result[(string) $domain] = self::toPort($port);
+        foreach ($map as $domain => $entry) {
+            $result[(string) $domain] = self::toEntry($entry);
         }
 
         return $result;
     }
 
     /**
-     * @param callable(array<string, int>): array<string, int> $mutator
+     * @param callable(array<string, array{port: int, comment: string}>): array<string, array{port: int, comment: string}> $mutator
      */
     private function write(callable $mutator): void
     {
@@ -121,8 +121,8 @@ final class DomainsRepository
             if ($raw !== false && trim($raw) !== '') {
                 $decoded = json_decode($raw, true);
                 if (\is_array($decoded)) {
-                    foreach ($decoded as $domain => $port) {
-                        $map[(string) $domain] = self::toPort($port);
+                    foreach ($decoded as $domain => $entry) {
+                        $map[(string) $domain] = self::toEntry($entry);
                     }
                 }
             }
@@ -130,7 +130,7 @@ final class DomainsRepository
             $map = $mutator($map);
             ksort($map);
 
-            $json = json_encode($map, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR) . "\n";
+            $json = json_encode(self::toStorable($map), \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR) . "\n";
 
             ftruncate($handle, 0);
             rewind($handle);
@@ -140,6 +140,21 @@ final class DomainsRepository
             flock($handle, \LOCK_UN);
             fclose($handle);
         }
+    }
+
+    /**
+     * @return array{port: int, comment: string}
+     */
+    private static function toEntry(mixed $value): array
+    {
+        if (\is_array($value)) {
+            return [
+                'port' => self::toPort($value['port'] ?? null),
+                'comment' => \is_string($value['comment'] ?? null) ? $value['comment'] : '',
+            ];
+        }
+
+        return ['port' => self::toPort($value), 'comment' => ''];
     }
 
     private static function toPort(mixed $value): int
@@ -153,5 +168,24 @@ final class DomainsRepository
         }
 
         return 0;
+    }
+
+    /**
+     * Entries without a comment are stored as a plain port number, to stay
+     * backward-compatible with tools consuming the file (e.g. the proxy resolver)
+     * and to avoid needlessly rewriting untouched entries.
+     *
+     * @param array<string, array{port: int, comment: string}> $map
+     *
+     * @return array<string, int|array{port: int, comment: string}>
+     */
+    private static function toStorable(array $map): array
+    {
+        $result = [];
+        foreach ($map as $domain => $entry) {
+            $result[$domain] = $entry['comment'] === '' ? $entry['port'] : $entry;
+        }
+
+        return $result;
     }
 }

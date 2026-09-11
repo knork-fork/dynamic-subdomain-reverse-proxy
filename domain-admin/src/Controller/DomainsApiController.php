@@ -54,11 +54,16 @@ final class DomainsApiController extends AbstractController
             return $this->error('Port must be an integer between 1 and 65535.');
         }
 
+        $comment = $this->validateComment($data['comment'] ?? '');
+        if ($comment === null) {
+            return $this->error('Comment is too long.');
+        }
+
         if (\array_key_exists($domain, $this->domainsRepository->all())) {
             return $this->error(\sprintf('Domain "%s" already exists.', $domain), JsonResponse::HTTP_CONFLICT);
         }
 
-        $this->domainsRepository->add($domain, $port);
+        $this->domainsRepository->add($domain, $port, $comment);
 
         return new JsonResponse($this->serializeAll(), JsonResponse::HTTP_CREATED);
     }
@@ -89,11 +94,16 @@ final class DomainsApiController extends AbstractController
             return $this->error('Port must be an integer between 1 and 65535.');
         }
 
+        $comment = $this->validateComment($data['comment'] ?? '');
+        if ($comment === null) {
+            return $this->error('Comment is too long.');
+        }
+
         if ($newDomain !== $domain && \array_key_exists($newDomain, $this->domainsRepository->all())) {
             return $this->error(\sprintf('Domain "%s" already exists.', $newDomain), JsonResponse::HTTP_CONFLICT);
         }
 
-        $this->domainsRepository->update($domain, $newDomain, $port);
+        $this->domainsRepository->update($domain, $newDomain, $port, $comment);
 
         return new JsonResponse($this->serializeAll());
     }
@@ -149,6 +159,17 @@ final class DomainsApiController extends AbstractController
         return ($port >= 1 && $port <= 65535) ? $port : null;
     }
 
+    private function validateComment(mixed $comment): ?string
+    {
+        if (!\is_string($comment)) {
+            return null;
+        }
+
+        $comment = trim($comment);
+
+        return \strlen($comment) <= 500 ? $comment : null;
+    }
+
     /**
      * @return array<string, mixed>|null
      */
@@ -167,16 +188,17 @@ final class DomainsApiController extends AbstractController
     }
 
     /**
-     * @return list<array{domain: string, port: int, online: bool}>
+     * @return list<array{domain: string, port: int, comment: string, online: bool}>
      */
     private function serializeAll(): array
     {
         $result = [];
-        foreach ($this->domainsRepository->all() as $domain => $port) {
+        foreach ($this->domainsRepository->all() as $domain => $entry) {
             $result[] = [
                 'domain' => $domain,
-                'port' => $port,
-                'online' => $this->portChecker->isOnline($port),
+                'port' => $entry['port'],
+                'comment' => $entry['comment'],
+                'online' => $this->portChecker->isOnline($entry['port']),
             ];
         }
 

@@ -5,6 +5,7 @@
     const addForm = document.getElementById('add-form');
     const addDomain = document.getElementById('add-domain');
     const addPort = document.getElementById('add-port');
+    const addComment = document.getElementById('add-comment');
     const flash = document.getElementById('flash');
     let isEditing = false;
 
@@ -41,7 +42,7 @@
         tbody.innerHTML = '';
 
         if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="empty">No domains configured yet.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="empty">No domains configured yet.</td></tr>';
             return;
         }
 
@@ -54,6 +55,13 @@
 
             const portCell = document.createElement('td');
             portCell.textContent = item.port;
+
+            const commentCell = document.createElement('td');
+            commentCell.className = 'comment-cell';
+            commentCell.textContent = item.comment || '';
+            if (item.comment) {
+                commentCell.title = item.comment;
+            }
 
             const statusCell = document.createElement('td');
             const dot = document.createElement('span');
@@ -84,6 +92,7 @@
 
             row.appendChild(domainCell);
             row.appendChild(portCell);
+            row.appendChild(commentCell);
             row.appendChild(statusCell);
             row.appendChild(actionsCell);
 
@@ -96,9 +105,11 @@
 
         const domainCell = row.children[0];
         const portCell = row.children[1];
+        const commentCell = row.children[2];
 
         domainCell.innerHTML = '';
         portCell.innerHTML = '';
+        commentCell.innerHTML = '';
         actions.innerHTML = '';
 
         const domainInput = document.createElement('input');
@@ -113,6 +124,12 @@
         portInput.max = '65535';
         portInput.value = item.port;
 
+        const commentInput = document.createElement('input');
+        commentInput.type = 'text';
+        commentInput.className = 'comment-edit-input';
+        commentInput.maxLength = 500;
+        commentInput.value = item.comment || '';
+
         const stopEditing = () => {
             isEditing = false;
         };
@@ -120,6 +137,7 @@
         const save = async () => {
             const newDomain = domainInput.value.trim();
             const newPort = parseInt(portInput.value, 10);
+            const newComment = commentInput.value.trim();
 
             if (newDomain === '') {
                 showFlash('Domain cannot be empty.', 'error');
@@ -133,7 +151,7 @@
             try {
                 const items = await api(`/api/domains/${encodeURIComponent(item.domain)}`, {
                     method: 'PUT',
-                    body: JSON.stringify({ domain: newDomain, port: newPort }),
+                    body: JSON.stringify({ domain: newDomain, port: newPort, comment: newComment }),
                 });
                 hideFlash();
                 stopEditing();
@@ -160,7 +178,7 @@
         cancelBtn.textContent = '✖️';
         cancelBtn.addEventListener('click', cancel);
 
-        for (const input of [domainInput, portInput]) {
+        for (const input of [domainInput, portInput, commentInput]) {
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') save();
                 if (e.key === 'Escape') cancel();
@@ -171,6 +189,7 @@
         actions.appendChild(cancelBtn);
         domainCell.appendChild(domainInput);
         portCell.appendChild(portInput);
+        commentCell.appendChild(commentInput);
 
         domainInput.focus();
         domainInput.select();
@@ -212,15 +231,17 @@
 
         const domain = addDomain.value.trim();
         const port = parseInt(addPort.value, 10);
+        const comment = addComment.value.trim();
 
         try {
             const items = await api('/api/domains', {
                 method: 'POST',
-                body: JSON.stringify({ domain, port }),
+                body: JSON.stringify({ domain, port, comment }),
             });
             hideFlash();
             addDomain.value = '';
             addPort.value = '';
+            addComment.value = '';
             renderRows(items);
         } catch (err) {
             showFlash(err.message, 'error');

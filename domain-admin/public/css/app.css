@@ -205,6 +205,10 @@ body {
     width: 140px;
 }
 
+.add-form input#add-comment {
+    flex: 1;
+}
+
 .domains-table {
     width: 100%;
     border-collapse: collapse;
@@ -239,6 +243,14 @@ body {
 
 .domains-table .actions-col {
     text-align: right;
+}
+
+.domains-table .comment-cell {
+    color: var(--muted);
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .domains-table .actions {
@@ -302,4 +314,12 @@ body {
     border-radius: 6px;
     font-size: 14px;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.comment-edit-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
 }

@@ -18,12 +18,22 @@ if (!is_array($map)) {
 
 $host = strtolower(explode(':', $_SERVER['HTTP_HOST'] ?? '')[0]);
 
-if (!array_key_exists($host, $map) || !ctype_digit((string) $map[$host])) {
+if (!array_key_exists($host, $map)) {
     // 403 (not 404) so nginx's auth_request treats it as a clean "deny"
     // rather than an upstream error.
     http_response_code(403);
     exit;
 }
 
-header('X-Upstream-Port: ' . (int) $map[$host]);
+// Entries may be a plain port number, or an object with a "port" key
+// (plus an optional "comment", set from the domain-admin UI).
+$entry = $map[$host];
+$port = is_array($entry) ? ($entry['port'] ?? null) : $entry;
+
+if (!ctype_digit((string) $port)) {
+    http_response_code(403);
+    exit;
+}
+
+header('X-Upstream-Port: ' . (int) $port);
 http_response_code(200);
