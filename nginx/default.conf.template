@@ -9,8 +9,11 @@ map $http_x_forwarded_proto $proxy_x_forwarded_proto {
 }
 
 server {
-    listen ${LISTEN_PORT};
+    listen ${LISTEN_PORT} ${LISTEN_OPTS};
     server_name _;
+
+    # Local-only extras (e.g. TLS certs), mounted via docker-compose.override.yml.
+    include /etc/nginx/local/*.conf;
 
     # Internal-only: resolves Host -> backend port via config/domains.json,
     # re-read fresh by PHP on every call (see php/resolve.php).

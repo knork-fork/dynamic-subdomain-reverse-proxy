@@ -1,2 +1,4 @@
 config/domains.json
 config/proxy.env.local
+docker-compose.override.yml
+nginx/local/
