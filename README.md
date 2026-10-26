@@ -10,7 +10,7 @@ docker compose up -d --build
 
 This starts nginx (listening on the port configured in `config/proxy.env`) plus a small PHP-FPM sidecar that resolves each request's `Host` header to a backend port.
 
-Default nginx port is 20500.
+Default nginx port is 20500. To override it locally, create the gitignored `config/proxy.env.local` (e.g. `LISTEN_PORT=8080`); it takes precedence over `config/proxy.env`.
 
 ## Setting up `config/domains.json`
 

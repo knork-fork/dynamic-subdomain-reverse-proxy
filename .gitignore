@@ -1,1 +1,2 @@
 config/domains.json
+config/proxy.env.local
