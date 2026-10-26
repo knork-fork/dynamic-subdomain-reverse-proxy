@@ -1,6 +1,11 @@
 framework:
     secret: '%env(APP_SECRET)%'
     http_method_override: false
+
+    # Behind the reverse proxy + the bundled nginx: trust X-Forwarded-* from private
+    # networks so generated URLs/redirects keep the public scheme (https) and host.
+    trusted_proxies: '%env(TRUSTED_PROXIES)%'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']
     handle_all_throwables: true
 
     session:
