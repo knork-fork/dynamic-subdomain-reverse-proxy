@@ -12,6 +12,40 @@ This starts nginx (listening on the port configured in `config/proxy.env`) plus 
 
 Default nginx port is 20500. To override it locally, create the gitignored `config/proxy.env.local` (e.g. `LISTEN_PORT=8080`); it takes precedence over `config/proxy.env`.
 
+## Serving HTTPS (local, not committed)
+
+TLS is configured per machine through gitignored files, so nothing certificate-specific lives in the repo. The nginx template includes `/etc/nginx/local/*.conf` inside its `server` block and takes extra `listen` options from `LISTEN_OPTS` (empty by default).
+
+To serve HTTPS with a Let's Encrypt certificate (example for `luka.cld.gcld.io`):
+
+1. `config/proxy.env.local`:
+
+   ```
+   LISTEN_PORT=443
+   LISTEN_OPTS=ssl
+   ```
+
+2. `nginx/local/ssl.conf` (gitignored directory):
+
+   ```
+   ssl_certificate /etc/letsencrypt/live/luka.cld.gcld.io/fullchain.pem;
+   ssl_certificate_key /etc/letsencrypt/live/luka.cld.gcld.io/privkey.pem;
+   ```
+
+3. `docker-compose.override.yml` (gitignored; Compose merges it into `docker-compose.yml` automatically):
+
+   ```yaml
+   services:
+     web:
+       volumes:
+         - ./nginx/local:/etc/nginx/local:ro
+         - /etc/letsencrypt:/etc/letsencrypt:ro
+   ```
+
+Mount the whole `/etc/letsencrypt` directory, not just the cert files: the files in `live/` are symlinks into `archive/`. After a certificate renewal, run `docker compose exec web nginx -s reload`.
+
+Without these files the proxy serves plain HTTP on the port from `config/proxy.env`.
+
 ## Setting up `config/domains.json`
 
 Create `config/domains.json` (it's gitignored, since it's local/environment-specific) mapping each domain to the local port it should be proxied to:
